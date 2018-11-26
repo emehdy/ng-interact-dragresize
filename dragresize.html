@@ -1,0 +1,127 @@
+
+<script src="js/angular.min.js"></script>
+<script src="js/d3.min.js"></script>
+<script src="js/jquery.min20.js"></script>
+<script src="js/paper-full.js"></script>
+<script src="js/interact.min.js"></script>
+<link rel="stylesheet" href="bootstrap.min.css"></link>
+<style>
+.wrap{height:600px;background-color:gray;overflow-y:scroll;}
+#drag-2  {
+  width: 25%;
+  height: 250px;
+  min-height: 6.5em;
+  margin: 10%;
+  background-color: #29e;
+  color: white;
+  border-radius: 0.75em;
+  padding: 4%;
+  user-select: none;
+  -webkit-transform: translate(0px, 0px);
+          transform: translate(0px, 0px);
+}
+</style>
+<body ng-app="interactApp">
+	<div class="wrap">
+		
+		 
+		<div id="drag-2" class="draggable" interact-drag-resize>
+		  <p> with each pointer </p>
+		</div>
+	</div>
+	
+	<script  >
+	var app=angular.module('interactApp',[]);
+	app.directive('interactDragResize',function(){
+	var draggable={
+		// enable inertial throwing
+		inertia: true,
+		// keep the element within the area of it's parent
+		restrict: {
+		  restriction: "parent",
+		  endOnly: true,
+		  elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+		},
+		// enable autoScroll
+		autoScroll: true,
+
+		// call this function on every dragmove event
+		onmove: onmove,
+		// call this function on every dragend event
+		 
+	  };
+	  
+		
+	var resizable={
+		// resize from all edges and corners
+		edges: { left: true, right: true, bottom: true, top: true },
+
+		// keep the edges inside the parent
+		restrictEdges: {
+		  outer: 'parent',
+		  endOnly: true,
+		},
+
+		// minimum size
+		restrictSize: {
+		  min: { width: 100, height: 50 },
+		},
+
+		inertia: true,
+	  };
+	function resizemove(event) {
+			var target = event.target,
+				x = (parseFloat(target.getAttribute('data-x')) || 0),
+				y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+			// update the element's style
+			target.style.width  = event.rect.width + 'px';
+			target.style.height = event.rect.height + 'px';
+
+			// translate when resizing from top or left edges
+			x += event.deltaRect.left;
+			y += event.deltaRect.top;
+
+			target.style.webkitTransform = target.style.transform =
+				'translate(' + x + 'px,' + y + 'px)';
+
+			target.setAttribute('data-x', x);
+			target.setAttribute('data-y', y);
+			
+		  }		
+	  function onmove (event) {
+		var target = event.target,
+			// keep the dragged position in the data-x/data-y attributes
+			x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+			y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+		// translate the element
+		target.style.webkitTransform =
+		target.style.transform =
+		  'translate(' + x + 'px, ' + y + 'px)';
+
+		// update the posiion attributes
+		target.setAttribute('data-x', x);
+		target.setAttribute('data-y', y);
+	  }  
+	// target elements with the "draggable" class
+	
+	return {
+			restrict : "A",
+			link : function(scope,element,attr)
+			{
+				interact(element[0])
+			  .draggable(draggable)
+			   .resizable(resizable)
+			  .on('resizemove', resizemove);
+				 
+			}
+		};
+	});  
+	  
+	  
+	
+
+	   
+	</script>
+</body>
